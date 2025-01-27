@@ -1,3 +1,0 @@
-SCardEstablishContext
-SCardListReaders
-SCardDisconnect
