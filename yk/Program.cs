@@ -1,4 +1,6 @@
 using System;
+using System.ComponentModel;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Mono.Options;
@@ -23,6 +25,7 @@ internal static class Program
         return new CommandSet(Environment.GetCommandLineArgs()[0])
             {
                 ActivatorUtilities.CreateInstance<ResetYubikeyCommand>(services),
+                ActivatorUtilities.CreateInstance<CertificatesCommands>(services),
             }
             .Run(args);
     }

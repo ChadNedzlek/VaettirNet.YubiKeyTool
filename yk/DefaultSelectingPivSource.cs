@@ -115,7 +115,7 @@ public class DefaultSelectingPivSource : IYubikeyPivSource
                 CryptographicOperations.ZeroMemory(bytes);
                 return true;
             }
-            case KeyEntryRequest.AuthenticateYubiHsmAuthManagementKey:
+            case KeyEntryRequest.AuthenticatePivManagementKey:
             {
                 var key = _ui.Prompt("Enter management key (blank to generate new): ");
                 var bytes = Convert.FromHexString(key);
@@ -130,11 +130,11 @@ public class DefaultSelectingPivSource : IYubikeyPivSource
             case KeyEntryRequest.VerifyFido2Pin:
             case KeyEntryRequest.VerifyFido2Uv:
             case KeyEntryRequest.ResetPivPinWithPuk:
-            case KeyEntryRequest.AuthenticatePivManagementKey:
             case KeyEntryRequest.VerifyOathPassword:
             case KeyEntryRequest.SetOathPassword:
             case KeyEntryRequest.ChangeYubiHsmAuthManagementKey:
             case KeyEntryRequest.AuthenticateYubiHsmAuthCredentialPassword:
+            case KeyEntryRequest.AuthenticateYubiHsmAuthManagementKey:
             case KeyEntryRequest.EnrollFingerprint:
             default:
                 Console.Error.WriteLine($"Unhandled key request: {arg.Request}");
