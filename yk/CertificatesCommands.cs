@@ -3,7 +3,7 @@ using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using Mono.Options;
 
-namespace yk;
+namespace VaettirNet.YubikeyUtils.Cli;
 
 internal class CertificatesCommands : CommandSet
 {
@@ -20,7 +20,7 @@ internal class CertificatesCommands : CommandSet
     private void Initialize(IServiceProvider services)
     {
         Add(ActivatorUtilities.CreateInstance<AuthorityCommands>(services));
-        Add(ActivatorUtilities.CreateInstance<SignCsr>(services));
+        Add(ActivatorUtilities.CreateInstance<SignCsrCommand>(services));
         Add(ActivatorUtilities.CreateInstance<CreateCsrCommand>(services));
     }
 }

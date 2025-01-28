@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 
-namespace yk;
+namespace VaettirNet.YubikeyUtils.Cli;
 
 public static class SupportedOids
 {

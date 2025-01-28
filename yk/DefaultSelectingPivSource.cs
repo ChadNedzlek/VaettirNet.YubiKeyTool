@@ -5,7 +5,7 @@ using System.Text;
 using Yubico.YubiKey;
 using Yubico.YubiKey.Piv;
 
-namespace yk;
+namespace VaettirNet.YubikeyUtils.Cli;
 
 public class DefaultSelectingPivSource : IYubikeyPivSource
 {

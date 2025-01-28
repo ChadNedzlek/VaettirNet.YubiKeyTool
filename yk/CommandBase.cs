@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Mono.Options;
 
-namespace yk;
+namespace VaettirNet.YubikeyUtils.Cli;
 
 public abstract class CommandBase : Command
 {

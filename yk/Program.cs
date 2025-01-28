@@ -1,11 +1,9 @@
 using System;
-using System.ComponentModel;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Mono.Options;
 
-namespace yk;
+namespace VaettirNet.YubikeyUtils.Cli;
 
 internal static class Program
 {

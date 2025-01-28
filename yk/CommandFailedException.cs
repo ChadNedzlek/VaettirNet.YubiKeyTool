@@ -1,6 +1,6 @@
 using System;
 
-namespace yk;
+namespace VaettirNet.YubikeyUtils.Cli;
 
 public class CommandFailedException : Exception
 {

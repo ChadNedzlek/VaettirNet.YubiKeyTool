@@ -6,10 +6,11 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using Microsoft.Extensions.Logging;
 
-namespace yk;
+namespace VaettirNet.YubikeyUtils.Cli;
 
-internal class SignCsr : CommandBase
+internal class SignCsrCommand : CommandBase
 {
     public string CsrFilePath { get; private set; }
     public string OutputFilePath { get; private set; }
@@ -21,11 +22,13 @@ internal class SignCsr : CommandBase
 
     private readonly IUserInteraction _ui;
     private readonly IYubikeyPivSource _pivSource;
+    private readonly ILogger<SignCsrCommand> _logger;
 
-    public SignCsr(IUserInteraction ui, IYubikeyPivSource pivSource) : base("sign", "Sign a certificate signing request")
+    public SignCsrCommand(IUserInteraction ui, IYubikeyPivSource pivSource, ILogger<SignCsrCommand> logger) : base("sign", "Sign a certificate signing request")
     {
         _ui = ui;
         _pivSource = pivSource;
+        _logger = logger;
         Options = new()
         {
             {"csr|input|i=", "(Required) Path to CSR request file", v => CsrFilePath = v},
@@ -70,11 +73,16 @@ internal class SignCsr : CommandBase
             SupportedOids.KeyUsages.CodeSigning
         ];
         
+        _logger.LogInformation("Loaded CSR with subject: {subject}", req.SubjectName);
+        
         CertificateRequest cleanRequest = new CertificateRequest(req.SubjectName, req.PublicKey, req.HashAlgorithm, RSASignaturePadding.Pss);
         if (cleanRequest.CertificateExtensions.OfType<X509KeyUsageExtension>().FirstOrDefault() is { } keyUsageEx)
         {
-            cleanRequest.CertificateExtensions.Add(new X509KeyUsageExtension(keyUsageEx.KeyUsages &
-                (X509KeyUsageFlags.DataEncipherment | X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.KeyAgreement),
+            X509KeyUsageFlags allowedUsages = keyUsageEx.KeyUsages &
+                (X509KeyUsageFlags.DataEncipherment | X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.KeyAgreement);
+            
+            _logger.LogInformation("Setting requested key usages '{requestedUsage}' to '{keyUsage}'", keyUsageEx.KeyUsages, allowedUsages);
+            cleanRequest.CertificateExtensions.Add(new X509KeyUsageExtension(allowedUsages,
                 true
             ));
         }
@@ -90,20 +98,30 @@ internal class SignCsr : CommandBase
 
             if (usages.Count > 0)
             {
+                _logger.LogInformation("Setting requested extended key usages '{requestedUsage}' to '{keyUsage}'", xKeyUsageEx.EnhancedKeyUsages, usages);
                 cleanRequest.CertificateExtensions.Add(new X509EnhancedKeyUsageExtension(usages, xKeyUsageEx.Critical));
             }
         }
 
         if (slotCert.Extensions.OfType<X509SubjectKeyIdentifierExtension>().FirstOrDefault() is { } ki)
         {
+            _logger.LogInformation("Adding authority key identifier from key identifier: {authorityKeyId}", ki.SubjectKeyIdentifier);
             cleanRequest.CertificateExtensions.Add(X509AuthorityKeyIdentifierExtension.CreateFromSubjectKeyIdentifier(ki));
         }
         else
         {
-            cleanRequest.CertificateExtensions.Add(X509AuthorityKeyIdentifierExtension.CreateFromCertificate(certificate: slotCert, includeKeyIdentifier: false, includeIssuerAndSerial: true));
+            var aki = X509AuthorityKeyIdentifierExtension.CreateFromCertificate(
+                certificate: slotCert,
+                includeKeyIdentifier: false,
+                includeIssuerAndSerial: true
+            );
+            _logger.LogInformation("Adding authority key identifier from issuers and serial number: {issuer} {serialNumber}", aki.NamedIssuer, Convert.ToBase64String(aki.SerialNumber.Value.Span));
+            cleanRequest.CertificateExtensions.Add(aki);
         }
 
+        _logger.LogInformation("Adding authority information access extension: {authorityAccessUrl}", AuthorityAccessUrl);
         cleanRequest.CertificateExtensions.Add(new X509AuthorityInformationAccessExtension(null, [AuthorityAccessUrl]));
+        _logger.LogInformation("Adding CRL distribution point: {crlDistributionUrl}", CrlDistributionUrl);
         cleanRequest.CertificateExtensions.Add(CertificateRevocationListBuilder.BuildCrlDistributionPointExtension([CrlDistributionUrl]));
         //
         // var writer = new AsnWriter(AsnEncodingRules.DER);
@@ -117,8 +135,9 @@ internal class SignCsr : CommandBase
         var sigGen = new YubikeySigGenerator(req, RSASignaturePadding.Pss, piv, Slot);
         Span<byte> serialNumber = stackalloc byte[16];
         RandomNumberGenerator.Fill(serialNumber);
+        
+        _logger.LogInformation("Generated serial number: {serialNumber}", Convert.ToBase64String(serialNumber));
         CommandSet.Out.WriteLine("Signing certificate request...");
-        X509Certificate2 signedCert = cleanRequest.Create(slotCert.SubjectName, sigGen, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddDays(ValidityDays), serialNumber);
         if (File.Exists(OutputFilePath))
         {
             if (!_ui.PromptYesNo("Target file exists, overwrite [yn]? "))
@@ -128,7 +147,9 @@ internal class SignCsr : CommandBase
             }
         }
 
+        X509Certificate2 signedCert = cleanRequest.Create(slotCert.SubjectName, sigGen, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddDays(ValidityDays), serialNumber);
         CommandSet.Out.WriteLine($"Writing certificate file to {OutputFilePath}");
+        _logger.LogInformation("Successfully signed certificate thumbprint: {thumbprint}", signedCert.Thumbprint);
         File.WriteAllText(OutputFilePath, signedCert.ExportCertificatePem(), new UTF8Encoding(false));
         CommandSet.Out.WriteLine("Done.");
         return 0;

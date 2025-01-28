@@ -1,7 +1,7 @@
 using System;
 using Yubico.YubiKey.Piv;
 
-namespace yk;
+namespace VaettirNet.YubikeyUtils.Cli;
 
 public class ResetYubikeyCommand : CommandBase
 {

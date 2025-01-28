@@ -3,7 +3,7 @@ using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using Mono.Options;
 
-namespace yk;
+namespace VaettirNet.YubikeyUtils.Cli;
 
 internal class AuthorityCommands : CommandSet
 {

@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Text;
 
-namespace yk;
+namespace VaettirNet.YubikeyUtils.Cli;
 
 public class ConsoleUserInteraction : IUserInteraction
 {

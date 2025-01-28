@@ -1,13 +1,11 @@
 using System;
-using System.Buffers.Text;
 using System.IO;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.Extensions.Logging;
-using Mono.Options;
 
-namespace yk;
+namespace VaettirNet.YubikeyUtils.Cli;
 
 public class CreateCsrCommand : CommandBase
 {
@@ -148,17 +146,5 @@ public class CreateCsrCommand : CommandBase
         rsa.ImportSubjectPublicKeyInfo(bytes, out _);
         _logger.LogInformation("Loaded key with public key {publicKey}", new PublicHashFormatter(rsa));
         return X509SignatureGenerator.CreateForRSA(rsa, RSASignaturePadding.Pss);
-    }
-
-    private readonly struct PublicHashFormatter
-    {
-        private readonly AsymmetricAlgorithm _alg;
-
-        public PublicHashFormatter(AsymmetricAlgorithm alg)
-        {
-            _alg = alg;
-        }
-
-        public override string ToString() => Convert.ToBase64String(SHA256.HashData(_alg.ExportSubjectPublicKeyInfo()));
     }
 }
