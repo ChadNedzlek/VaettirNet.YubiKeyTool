@@ -60,13 +60,13 @@ internal class CreateCaCommand : CommandBase
         switch (publicKey)
         {
             case PivEccPublicKey ecc:
-                string oidString = publicKey.Algorithm switch
+                var curveOid = publicKey.Algorithm switch
                 {
-                    PivAlgorithm.EccP256 => "1.2.840.10045.3.1.7",
-                    PivAlgorithm.EccP384 => "1.3.132.0.34",
+                    PivAlgorithm.EccP256 => SupportedOids.EcCurve.EccP256,
+                    PivAlgorithm.EccP384 => SupportedOids.EcCurve.EccP384,
                     _ => throw new ArgumentException("Unsupported ECC curve")
                 };
-                var curve = ECCurve.CreateFromValue(oidString);
+                var curve = ECCurve.CreateFromOid(curveOid);
                 int coordLength = (ecc.PublicPoint.Length - 1) / 2;
                 var eccParams = new ECParameters{Curve = curve, Q = new ECPoint()
                 {

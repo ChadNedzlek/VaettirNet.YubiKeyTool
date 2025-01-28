@@ -49,6 +49,11 @@ public abstract class CommandBase : Command
             }
         }
 
+        if (typeof(T).IsEnum && Convert.ToInt32(value) == 0)
+        {
+            throw new CommandFailedException($"Missing required argument: '{argumentName}'", 1);
+        }
+
         if (value is null)
         {
             throw new CommandFailedException($"Missing required argument: '{argumentName}'", 1);

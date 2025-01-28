@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.DependencyInjection;
 using Mono.Options;
 
@@ -22,5 +21,6 @@ internal class CertificatesCommands : CommandSet
     {
         Add(ActivatorUtilities.CreateInstance<AuthorityCommands>(services));
         Add(ActivatorUtilities.CreateInstance<SignCsr>(services));
+        Add(ActivatorUtilities.CreateInstance<CreateCsrCommand>(services));
     }
 }
