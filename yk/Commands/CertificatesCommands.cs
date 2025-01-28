@@ -22,5 +22,6 @@ internal class CertificatesCommands : CommandSet
         Add(ActivatorUtilities.CreateInstance<AuthorityCommands>(services));
         Add(ActivatorUtilities.CreateInstance<SignCsrCommand>(services));
         Add(ActivatorUtilities.CreateInstance<CreateCsrCommand>(services));
+        Add(ActivatorUtilities.CreateInstance<PfxCommand>(services));
     }
 }
