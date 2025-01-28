@@ -5,7 +5,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.Extensions.Logging;
 
-namespace VaettirNet.YubikeyUtils.Cli;
+namespace VaettirNet.YubikeyUtils.Cli.Commands;
 
 public class CreateCsrCommand : CommandBase
 {

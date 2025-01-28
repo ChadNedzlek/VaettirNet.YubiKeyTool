@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Mono.Options;
 
-namespace VaettirNet.YubikeyUtils.Cli;
+namespace VaettirNet.YubikeyUtils.Cli.Commands;
 
 public abstract class CommandBase : Command
 {
@@ -32,7 +32,16 @@ public abstract class CommandBase : Command
             return 1;
         }
 
-        return Execute();
+        try
+        {
+            return Execute();
+        }
+        catch (MissingRequiredArgumentException e)
+        {
+            CommandSet.Error.WriteLine(e.Message);
+            Options.WriteOptionDescriptions(CommandSet.Error);
+            return e.ExitCode ?? 1;
+        }
     }
 
     public virtual IList<string> HandleExtraArgs(IList<string> arguments) => arguments;
@@ -45,18 +54,18 @@ public abstract class CommandBase : Command
         {
             if (string.IsNullOrEmpty(Unsafe.As<string>(value)))
             {
-                throw new CommandFailedException($"Missing required argument: '{argumentName}'", 1);
+                throw new MissingRequiredArgumentException(argumentName);
             }
         }
 
         if (typeof(T).IsEnum && Convert.ToInt32(value) == 0)
         {
-            throw new CommandFailedException($"Missing required argument: '{argumentName}'", 1);
+            throw new MissingRequiredArgumentException(argumentName);
         }
 
         if (value is null)
         {
-            throw new CommandFailedException($"Missing required argument: '{argumentName}'", 1);
+            throw new MissingRequiredArgumentException(argumentName);
         }
     }
 }

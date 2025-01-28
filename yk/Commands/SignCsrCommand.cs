@@ -7,8 +7,9 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using VaettirNet.YubikeyUtils.Cli.Services;
 
-namespace VaettirNet.YubikeyUtils.Cli;
+namespace VaettirNet.YubikeyUtils.Cli.Commands;
 
 internal class SignCsrCommand : CommandBase
 {
@@ -132,7 +133,7 @@ internal class SignCsrCommand : CommandBase
         // Need to add:
         // * certificate policies
 
-        var sigGen = new YubikeySigGenerator(req, RSASignaturePadding.Pss, piv, Slot);
+        var sigGen = new YubikeySigGenerator(slotCert.PublicKey, RSASignaturePadding.Pss, piv, Slot);
         Span<byte> serialNumber = stackalloc byte[16];
         RandomNumberGenerator.Fill(serialNumber);
         

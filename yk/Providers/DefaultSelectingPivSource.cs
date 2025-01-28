@@ -2,10 +2,11 @@ using System;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using VaettirNet.YubikeyUtils.Cli.Services;
 using Yubico.YubiKey;
 using Yubico.YubiKey.Piv;
 
-namespace VaettirNet.YubikeyUtils.Cli;
+namespace VaettirNet.YubikeyUtils.Cli.Providers;
 
 public class DefaultSelectingPivSource : IYubikeyPivSource
 {

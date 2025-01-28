@@ -1,8 +1,9 @@
 using System;
 using System.Linq;
 using System.Text;
+using VaettirNet.YubikeyUtils.Cli.Services;
 
-namespace VaettirNet.YubikeyUtils.Cli;
+namespace VaettirNet.YubikeyUtils.Cli.Providers;
 
 public class ConsoleUserInteraction : IUserInteraction
 {
@@ -45,9 +46,15 @@ public class ConsoleUserInteraction : IUserInteraction
             StringBuilder b = new StringBuilder();
             while (true)
             {
-                var r = Console.ReadKey().KeyChar;
-                if (r == '\n') break;
-                b.Append(r);
+                ConsoleKeyInfo key = Console.ReadKey(true);
+                if (key.Key == ConsoleKey.Enter)
+                {
+                    Console.WriteLine();
+                    break;
+                }
+
+                var value = key.KeyChar;
+                b.Append(value);
                 if (echo is { } e)
                 {
                     Console.Write(e);

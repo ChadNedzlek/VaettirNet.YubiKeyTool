@@ -2,6 +2,9 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Mono.Options;
+using VaettirNet.YubikeyUtils.Cli.Commands;
+using VaettirNet.YubikeyUtils.Cli.Providers;
+using VaettirNet.YubikeyUtils.Cli.Services;
 
 namespace VaettirNet.YubikeyUtils.Cli;
 
@@ -45,8 +48,9 @@ internal static class Program
             logger.LogCritical(e, "Unhandled exception");
             #if DEBUG
                 throw;
-            #endif
+            #else
             return 1000;
+            #endif
         }
     }
 }

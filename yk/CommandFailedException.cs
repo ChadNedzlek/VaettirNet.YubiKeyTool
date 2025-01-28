@@ -15,3 +15,10 @@ public class CommandFailedException : Exception
         ExitCode = exitCode;
     }
 }
+
+public class MissingRequiredArgumentException : CommandFailedException
+{
+    public MissingRequiredArgumentException(string argumentName) : base($"Missing required parameter '{argumentName}'", 1)
+    {
+    }
+}

@@ -1,6 +1,13 @@
 using System;
 
-namespace VaettirNet.YubikeyUtils.Cli;
+namespace VaettirNet.YubikeyUtils.Cli.Services;
+
+public interface IUserInteraction
+{
+    bool PromptYesNo(string prompt, StringComparer comparer);
+    string Prompt(string prompt, StringComparer comparer, params string[] options);
+    string PromptHidden(string prompt, char? echo = null);
+}
 
 public static class UserInteraction
 {
