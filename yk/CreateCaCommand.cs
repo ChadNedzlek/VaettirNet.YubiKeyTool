@@ -88,6 +88,7 @@ internal class CreateCaCommand : CommandBase
         }
         req.CertificateExtensions.Add(new X509KeyUsageExtension(X509KeyUsageFlags.CrlSign | X509KeyUsageFlags.KeyCertSign | X509KeyUsageFlags.DigitalSignature, true));
         req.CertificateExtensions.Add(new X509BasicConstraintsExtension(certificateAuthority: true, hasPathLengthConstraint: false, pathLengthConstraint: 0, critical: true));
+        req.CertificateExtensions.Add(new X509SubjectKeyIdentifierExtension(req.PublicKey, X509SubjectKeyIdentifierHashAlgorithm.Sha256, false));
         
         var sigGen = new YubikeySigGenerator(req, RSASignaturePadding.Pss, piv, Slot);
         Span<byte> serialNumber = stackalloc byte[16];

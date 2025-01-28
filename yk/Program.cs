@@ -20,13 +20,35 @@ internal static class Program
 
         using var services = collection.BuildServiceProvider();
 
+        ILogger logger = services.GetRequiredService<ILoggerFactory>().CreateLogger("Program");
+
         Yubico.Core.Logging.Log.Instance = services.GetRequiredService<ILoggerFactory>();
-        
-        return new CommandSet(Environment.GetCommandLineArgs()[0])
-            {
-                ActivatorUtilities.CreateInstance<ResetYubikeyCommand>(services),
-                ActivatorUtilities.CreateInstance<CertificatesCommands>(services),
-            }
-            .Run(args);
+
+        var commands = new CommandSet(Environment.GetCommandLineArgs()[0])
+        {
+            ActivatorUtilities.CreateInstance<ResetYubikeyCommand>(services),
+            ActivatorUtilities.CreateInstance<CertificatesCommands>(services),
+        };
+
+        try
+        {
+            return commands.Run(args);
+        }
+        catch (CommandFailedException e)
+        {
+            logger.LogWarning("Command failed with exit code '{exitCode}' message: {message}", e.ExitCode, e.Message);
+            Console.Error.WriteLine(e);
+            if (e.ExitCode is { } ex) return ex;
+            return 1;
+        }
+        catch (Exception e)
+        {
+            Console.Error.WriteLine("Unexpected exception encountered. Terminating");
+            logger.LogCritical(e, "Unhandled exception");
+            #if DEBUG
+                throw;
+            #endif
+            return 1000;
+        }
     }
 }

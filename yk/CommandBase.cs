@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Mono.Options;
 
 namespace yk;
@@ -37,4 +38,20 @@ public abstract class CommandBase : Command
     public virtual IList<string> HandleExtraArgs(IList<string> arguments) => arguments;
 
     protected abstract int Execute();
+
+    protected void ValidateRequiredArgument<T>(T value, string argumentName)
+    {
+        if (typeof(T) == typeof(string))
+        {
+            if (string.IsNullOrEmpty(Unsafe.As<string>(value)))
+            {
+                throw new CommandFailedException($"Missing required argument: '{argumentName}'", 1);
+            }
+        }
+
+        if (value is null)
+        {
+            throw new CommandFailedException($"Missing required argument: '{argumentName}'", 1);
+        }
+    }
 }
