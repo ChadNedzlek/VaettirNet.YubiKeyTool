@@ -36,7 +36,7 @@ public class DefaultSelectingPivSource : IYubikeyPivSource
             case KeyEntryRequest.VerifyPivPin:
             {
                 string msg = arg.IsRetry ? $"Entry PIV Pin ({arg.RetriesRemaining} retries remaining): " : "Entry PIV Pin: ";
-                string pin = _ui.Prompt(msg);
+                string pin = _ui.PromptHidden(msg, '*');
                 if (string.IsNullOrEmpty(pin))
                     return false;
                 arg.SubmitValue(Encoding.ASCII.GetBytes(pin));
@@ -117,7 +117,7 @@ public class DefaultSelectingPivSource : IYubikeyPivSource
             }
             case KeyEntryRequest.AuthenticatePivManagementKey:
             {
-                var key = _ui.Prompt("Enter management key (blank to generate new): ");
+                var key = _ui.PromptHidden("Enter management key : ", '*');
                 var bytes = Convert.FromHexString(key);
                 arg.SubmitValue(bytes);
                 return true;

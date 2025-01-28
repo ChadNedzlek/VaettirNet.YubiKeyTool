@@ -105,10 +105,15 @@ internal class SignCsr : CommandBase
         }
 
         cleanRequest.CertificateExtensions.Add(new X509AuthorityInformationAccessExtension(null, [AuthorityAccessUrl]));
+        cleanRequest.CertificateExtensions.Add(CertificateRevocationListBuilder.BuildCrlDistributionPointExtension([CrlDistributionUrl]));
+        //
+        // var writer = new AsnWriter(AsnEncodingRules.DER);
+        // Span<byte> policyBytes = stackalloc byte[256];
+        // var cbPolicy = writer.Encode(policyBytes);
+        // cleanRequest.CertificateExtensions.Add(new X509Extension(SupportedOids.CertificatePolicy.Root, policyBytes[..cbPolicy], false));
         
         // Need to add:
         // * certificate policies
-        // * CRL distribution points
 
         var sigGen = new YubikeySigGenerator(req, RSASignaturePadding.Pss, piv, Slot);
         Span<byte> serialNumber = stackalloc byte[16];
@@ -139,9 +144,10 @@ public static class SupportedOids
         public static readonly Oid CodeSigning = new("1.3.6.1.5.5.7.3.3");
         public static readonly Oid EmailProtection = new("1.3.6.1.5.5.7.3.4");
     }
-
-    public static class CertificatePolicies
+    
+    public static class CertificatePolicy
     {
+        public static readonly Oid Root = new("2.5.29.32");
         public static readonly Oid DomainValidated = new Oid("2.23.140.1.2.1");
         public static readonly Oid OrganizationValidated = new Oid("2.23.140.1.2.2");
         public static readonly Oid IndividualValidated = new Oid("2.23.140.1.2.3");
